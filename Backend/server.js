@@ -10,9 +10,20 @@ const PORT = process.env.PORT || 3000
 app.use(cors)
 app.use(express.json)
 
-mongoose.connect(process.env.MONGO_DB_URI)
-    .then(() => console.log('Connected to mongodb'))
-    .catch((err) => console.log("Error in connceting to db:", err));
+
+async function connectDB() {
+  try {
+    // Database name is "myDatabase" here
+    await mongoose.connect(process.env.MONGO_DB_URI, {
+    });
+    console.log('Connected to MongoDB');
+  } catch (err) {
+    console.error('Database connection error:', err);
+  }
+}
+
+connectDB();
+
 
 const itemSchema = new mongoose.Schema({
     taskName: { type: String, required: true },
@@ -21,13 +32,13 @@ const itemSchema = new mongoose.Schema({
     status: { type: Boolean, required: false }
 })
 
-const Item = mongoose.model('Item', itemSchema)
+const Item = mongoose.model('Item', itemSchema,'task_list')
 
 app.get = ('/', (req, res) => {
     res.send('Hello from express!');
 })
 
-app.get = ('/api/list', (req, res) => {
+app.get = ('/api/list', async (req, res) => {
     try {
         const taskList = await Item.find()
         res.json(taskList)
@@ -53,6 +64,6 @@ app.post = ('/api/createTask', (req, res) => {
     }
 })
 
-app.listen(Port, () => {
+app.listen(PORT, () => {
     console.log("Express server is live")
 })
